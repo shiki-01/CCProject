@@ -1,0 +1,36 @@
+[
+    {
+        "id": "1",
+        "name": "Tmp Project",
+        "description": "This is a temporary project.",
+        "created": "2023-10-01T12:00:00Z",
+        "updated": "2023-10-01T12:00:00Z",
+        "tags": [
+            {
+                "name": "tag1",
+                "color": "#FF5733"
+            },
+            {
+                "name": "tag2",
+                "color": "#33FF57"
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "name": "My Project",
+        "description": "This is my project.",
+        "created": "2023-10-01T12:00:00Z",
+        "updated": "2023-10-01T12:00:00Z",
+        "tags": [
+            {
+                "name": "tag1",
+                "color": "#FF5733"
+            },
+            {
+                "name": "tag2",
+                "color": "#33FF57"
+            }
+        ]
+    }
+]
