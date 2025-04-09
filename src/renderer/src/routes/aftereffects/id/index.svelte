@@ -2,35 +2,26 @@
   import { Link } from 'svelte-routing'
   import Icon from '@iconify/svelte'
   import FileHead from '../../../components/FileHead.svelte'
-  import mockProjects from '../../../assets/mockProjects.json'
-  import mockFiles from '../../../assets/mockFiles.json'
   import { onMount } from 'svelte'
+  import type { FileStructure, Project } from '../../../../../global.js'
 
   let { params } = $props()
 
-  type File = {
-    file:
-      | string
-      | {
-          [key: string]: File[]
-        }
-    id: string
-    commit: string
-  }
-
-  const { file: filePath } = params
-
-  const fileList = mockFiles as unknown as { id: string, files: File[] }[]
-  let files = $state(fileList.find((file) => file.id === params.id)?.files || [])
-
-  const project = mockProjects.find((project) => project.id === params.id) || {
+  let project: Project = $state({
     id: '',
     name: '',
+    icon: '',
+    status: 'new',
     description: '',
     created: '',
     updated: '',
     tags: []
-  }
+  })
+
+  let structures: FileStructure[] = $state([])
+  let file: string | object | Buffer = $state('')
+
+  const { path } = params || { path: '' }
 
   const contributors = [
     {
@@ -55,85 +46,104 @@
     }
   ]
 
-  onMount(() => {
-    console.log('filePath', filePath);
-    if (typeof filePath === 'string') {
-      const pathSegments = filePath.split('/'); // パスを分割
-      console.log('pathSegments', pathSegments);
+  onMount(async () => {
+    if (typeof window === 'undefined') return
+    const getProject = await window.api.invoke.project.get(params.id)
+    console.log('getProject', getProject)
+    if (!getProject || !getProject.data) return
+    project = getProject.data.project
+    structures = getProject.data.structure
 
-      let currentFiles: File[] = files;
+    if (path) {
+      const [type, name] = path.split('/')
 
-      for (const segment of pathSegments) {
-        console.log('segment', segment);
-        if (Array.isArray(currentFiles)) {
-          const folder = currentFiles.find((file) => file.id === segment); // `id` に基づいて探索
-          console.log('folder', folder);
-
-          if (folder && typeof folder.file === 'object' && !Array.isArray(folder.file)) {
-            // `folder.file` がオブジェクトの場合、次の階層に進む
-            currentFiles = Object.values(folder.file).flat();
-          } else if (folder && Array.isArray(folder.file)) {
-            // `folder.file` が配列の場合、次の階層に進む
-            currentFiles = folder.file;
-          } else if (folder && typeof folder.file === 'string') {
-            // `folder.file` が文字列の場合、ファイルに到達
-            currentFiles = [folder];
-            break;
-          } else {
-            // 該当するフォルダがない場合
-            currentFiles = [];
-            break;
-          }
+      if (type === 'tree') {
+        structures = structures.filter((structure) => structure.name === name)[0]
+          .children as FileStructure[]
+        console.log('structures', structures)
+      } else {
+        const filePath = path.split('/').slice(1).join('/')
+        const response = await window.api.invoke.project.getFile(params.id, filePath)
+        console.log('response', response)
+        if (response && response.data) {
+          file = response.data
         }
       }
-
-      files = currentFiles; // 絞り込んだ結果を設定
-      console.log('Updated files:', files);
     }
-  });
+
+    structures = structures.sort((a, b) => {
+      if (a.type === 'folder' && b.type === 'file') return -1
+      if (a.type === 'file' && b.type === 'folder') return 1
+      return a.name.localeCompare(b.name)
+    })
+  })
 </script>
 
 <div class="w:100% h:100% flex flex:column gap:24px">
-  <FileHead title={project.name} created={project.created} updated={project.updated} {contributors} tags={project.tags} />
+  <FileHead
+    title={project.name}
+    created={project.created}
+    updated={project.updated}
+    {contributors}
+    tags={project.tags}
+  />
   <div class="w:100% h:100% flex">
     <div class="w:100% h:100% bg:primary-dark r:8px b:4px|border|solid">
       <div class="w:100% h:40px flex bg:primary-main rt:4px bb:4px|border|solid"></div>
-      <table class="w:100% h:100% fg:#fff text:.9em">
-        <tbody>
-          {#each files as file}
-            {@const isFile = typeof file.file === 'object'}
-            <tr>
-              <td class="bb:1px|#666|solid flex flex:row gap:8px align-items:center">
-                {#if isFile}
-                  <Icon icon="mdi:folder" width="16" height="16" />
-                {:else}
-                  <Icon icon="mdi:file-outline" width="16" height="16" />
-                {/if}
-                <Link
-                  to="/aftereffects/{project.id}/{typeof file.file === 'string' ? file.id : file.file.id}"
-                  class="cursor:pointer fg:rgb(123,173,255):hover text:underline:hover"
-                >
-                  {isFile ? Object.keys(file.file)[0] : file.file}
-                </Link>
-              </td>
-              <td class="w:200px bb:1px|#666|solid">
-                <Link
-                  to="/aftereffects:id/commit"
-                  class="cursor:pointer fg:rgb(123,173,255):hover text:underline:hover"
-                  >{file.commit}</Link
-                >
-              </td>
-              <td class="w:100px bb:1px|#666|solid">
-                <Link
-                  to="/aftereffects:id/commit"
-                  class="cursor:pointer fg:rgb(123,173,255):hover text:underline:hover"
-                  >last week</Link
-                >
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+      {#if path && path.split('/')[0] === 'blob'}
+        <div class="w:100% h:calc(100%-40px) p:24px flex justify-content:center align-items:center">
+          {#if file}
+            {#if typeof file === 'string'}
+              {#if file.startsWith('data:image/')}
+                <img src={file} alt="画像" />
+              {:else}
+                <pre class="fg:#fff w:100% h:100% text:1.2em line-h:1.2em">{file}</pre>
+              {/if}
+            {:else if typeof file === 'object'}
+              <p class="fg:#fff">File is an object</p>
+            {:else}
+              <p class="fg:#fff">Unknown file type</p>
+            {/if}
+          {/if}
+        </div>
+      {:else}
+        <table class="w:100% h:100% fg:#fff text:.9em">
+          <tbody>
+            {#each structures as structure}
+              {@const isFile = structure.type === 'file'}
+              <tr>
+                <td class="bb:1px|#666|solid flex flex:row gap:8px align-items:center">
+                  {#if isFile}
+                    <Icon icon="mdi:file-outline" width="16" height="16" />
+                  {:else}
+                    <Icon icon="mdi:folder" width="16" height="16" />
+                  {/if}
+                  <Link
+                    to="/aftereffects/{project.id}/{isFile ? 'blob' : 'tree'}/{structure.name}"
+                    class="cursor:pointer fg:rgb(123,173,255):hover text:underline:hover"
+                  >
+                    {structure.name}
+                  </Link>
+                </td>
+                <td class="w:200px bb:1px|#666|solid">
+                  <Link
+                    to="/aftereffects:id/commit"
+                    class="cursor:pointer fg:rgb(123,173,255):hover text:underline:hover"
+                    >Initial Commit</Link
+                  >
+                </td>
+                <td class="w:100px bb:1px|#666|solid">
+                  <Link
+                    to="/aftereffects:id/commit"
+                    class="cursor:pointer fg:rgb(123,173,255):hover text:underline:hover"
+                    >last week</Link
+                  >
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      {/if}
     </div>
   </div>
 </div>

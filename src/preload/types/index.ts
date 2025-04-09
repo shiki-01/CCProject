@@ -15,7 +15,7 @@ type Status = {
 /**
  * API のレスポンスのスキーマ
  */
-type APISchema<T = object | null> = {
+type APISchema<T = object | string | Buffer | null> = {
   status: Status
   data?: T
   error?: string | Error | unknown

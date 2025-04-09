@@ -1,18 +1,21 @@
 interface Project {
   id: string
-  project_id: string
-  created_at: Date
-  updated_at: Date
+  created: string
+  updated: string
   name: string
   description: string
   icon: string
-  tags: string[]
-  status: string
-  contributor: {
+  tags: {
     name: string
-    gh_id: string
-    icon: string
+    color: string
   }[]
+  status: string
 }
 
-export type { Project }
+interface FileStructure {
+  name: string,
+  type : 'file' | 'folder',
+  children?: FileStructure[]
+}
+
+export type { Project, FileStructure }

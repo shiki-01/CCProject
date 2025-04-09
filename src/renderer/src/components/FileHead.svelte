@@ -8,8 +8,13 @@
     updated,
     contributors,
     tags
-  }: { title: string; created: string; updated: string; contributors: any[]; tags: any[] } =
-    $props()
+  }: {
+    title: string
+    created: string
+    updated: string
+    contributors: any[]
+    tags: { name: string; color: string }[]
+  } = $props()
 </script>
 
 <div class="w:100% h:fit flex flex:column gap:12px fg:#fff">
@@ -40,12 +45,14 @@
     </Link>
     <div class="w:100% h:fit flex flex:row gap:16px">
       {#each tags as tag}
-        <div
-          style="background-color: {tag.color}"
-          class="tag w:fit h:32px px:8px rel b:2px|#fff|solid r:8px flex flex:row justify-content:center align-items:center gap:8px"
-        >
-          <p class="">{tag.name}</p>
-        </div>
+        {#if 'name' in tag}
+          <div
+            style="background-color: {tag.color}"
+            class="tag w:fit h:32px px:8px rel b:2px|#fff|solid r:8px flex flex:row justify-content:center align-items:center gap:8px"
+          >
+            <p class="">{tag.name}</p>
+          </div>
+        {/if}
       {/each}
     </div>
   </div>

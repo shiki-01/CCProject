@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Router, Route } from 'svelte-routing'
   import { CSSRuntimeProvider } from '@master/css.svelte'
-  import { fade } from 'svelte/transition'
   import Header from './components/Header.svelte'
   import config from './master.css'
   import AfterEffects from './routes/aftereffects/index.svelte'
@@ -12,20 +11,11 @@
   import './assets/scroll.css'
 
   let path: string = $state('/')
-
-  const transition = () => {
-    path = location.pathname
-    if (/^\/aftereffects\/[^/]+\/.+/.test(path)) {
-      return {}
-    } else {
-      return { fn: fade, duration: 120 }
-    }
-  }
 </script>
 
 <CSSRuntimeProvider {config}>
   <div class="w:100svw h:100svh rel bg:primary-main overflow:hidden">
-    <Router viewtransition={transition}>
+    <Router>
       <Header path={path.split('/')[1]} />
       <div class="w:calc(100%-80px) h:100svh overflow:hidden rel ml:80px p:48px">
         <Route path="/">
@@ -37,7 +27,7 @@
         <Route path="/aftereffects/:id" let:params>
           <AEid {params} />
         </Route>
-        <Route path="/aftereffects/:id/*file" let:params>
+        <Route path="/aftereffects/:id/*path" let:params>
           <AEid {params} />
         </Route>
         <Route path="/photoshop">

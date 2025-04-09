@@ -5,7 +5,7 @@ dotenv.config()
 /** @type {import('electron-builder').Configuration} */
 const config = {
   appId: 'com.shiki-01.lumina',
-  productName: 'Lumina',
+  productName: 'CCProject',
   directories: {
     output: 'dist',
     buildResources: 'build'
@@ -28,13 +28,13 @@ const config = {
   publish: {
     provider: 'github',
     owner: 'shiki-01',
-    repo: 'Lumina',
+    repo: 'CCProject',
     token: process.env.GH_TOKEN,
     private: false,
     releaseType: 'draft'
   },
   win: {
-    executableName: 'Lumina',
+    executableName: 'CCProject',
     target: [
       {
         target: 'nsis',

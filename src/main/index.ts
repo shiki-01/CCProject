@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?raw'
 import { DatabaseManager } from './utils/database.js'
 import { apiHandlers, registerAPIHandlers } from '../preload/utils/api/handler.js'
+import fs from 'fs'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -49,6 +50,21 @@ function createWindow(): void {
   }
 }
 
+const initialFiles = [
+  {
+    name: 'ccprojects',
+    files: [],
+  },
+  {
+    name: 'config',
+    files: [
+      'config.user.json',
+      'config.ui.json',
+      'config.project.json',
+    ]
+  }
+]
+
 ipcMain.handle('database:initialize', async () => {
   const db = DatabaseManager.getDB()
   return new Promise((resolve, reject) => {
@@ -68,6 +84,27 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  // プロジェクトの専用フォルダを作成
+
+  const userDataPath = app.getPath('userData')
+  const projectsPath = join(userDataPath, 'CCProject')
+  if (!fs.existsSync(projectsPath)) {
+    fs.mkdirSync(projectsPath)
+  }
+
+  for (const folder of initialFiles) {
+    const folderPath = join(projectsPath, folder.name)
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath)
+    }
+    for (const file of folder.files) {
+      const filePath = join(folderPath, file)
+      if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, JSON.stringify({}))
+      }
+    }
+  }
 
   createWindow()
   registerAPIHandlers(apiHandlers)

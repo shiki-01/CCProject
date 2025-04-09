@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: Lumina
+productName: CCProject
 directories:
   buildResources: build
 files:
@@ -16,7 +16,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: Lumina
+  executableName: CCProject
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -40,11 +40,11 @@ linux:
   target:
     - AppImage
     - deb
-  maintainer: lumina.org
+  maintainer: ccproject.org
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: true
 publish:
   provider: generic
-  url: https://github.com/shiki-01/lumina/releases/download/v${version}/
+  url: https://github.com/shiki-01/CCProject/releases/download/v${version}/

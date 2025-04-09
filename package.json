@@ -1,5 +1,5 @@
 {
-  "name": "lumina",
+  "name": "ccproject",
   "version": "1.0.0-beta",
   "description": "Chat with your local LLMs",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "email": "contact@shiki-01.com",
     "url": "https://shiki-01.com"
   },
-  "homepage": "https://github.com/shiki-01/Lumina",
+  "homepage": "https://github.com/shiki-01/CCProject",
   "type": "module",
   "scripts": {
     "format": "prettier --plugin prettier-plugin-svelte --write .",
