@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { Link } from 'svelte-routing'
+  import Link from './Link.svelte'
   import { fade } from 'svelte/transition'
 
   let isOpen: boolean = $state(false)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Link } from 'svelte-routing'
+  import Link from './Link.svelte';
   import Icon from '@iconify/svelte'
 
   let {

@@ -1,10 +1,10 @@
 <script lang="ts">
   import mockProjects from '../../assets/mockProjects.json'
-  import { Link } from 'svelte-routing'
   import type { Project } from '../../../../global.js'
   import FileHead from '../../components/FileHead.svelte'
   import Icon from '@iconify/svelte'
   import { onMount } from 'svelte'
+  import { routeStore } from '../../lib/store.js'
 
   let files = $state(mockProjects as unknown as Project[])
 
@@ -44,8 +44,10 @@
     <Icon icon="mdi:add" />
   </button>
   {#each files as file}
-    <Link
-      to={`/aftereffects/${file.id}`}
+    <button
+      onclick={() => {
+        routeStore.set(`/aftereffects/${file.id}`)
+      }}
       class="w:100% h:fit flex flex:column gap:16px p:24px r:8px bg:primary-dark b:4px|border|solid cursor:pointer"
     >
       <FileHead
@@ -64,6 +66,6 @@
         ]}
         tags={file.tags}
       />
-    </Link>
+    </button>
   {/each}
 </div>
